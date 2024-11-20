@@ -43,9 +43,11 @@ class LLMHandler:
         inputs = self.tokenizer(stock_context, return_tensors="pt").to("cuda")
         outputs = self.model.generate(
             inputs["input_ids"],
-            max_length=500,
+            max_length=2000,  # Increased from 1000 to 2000
             num_beams=3,
-            early_stopping=True
+            early_stopping=True,
+            eos_token_id=self.tokenizer.eos_token_id,  # Ensure generation stops at end of sequence
+            pad_token_id=self.tokenizer.pad_token_id
         )
         response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         return self._split_response(response)
@@ -61,10 +63,10 @@ class LLMHandler:
         conclusion_start = response.find("Conclusion:")
 
         if analysis_start != -1 and conclusion_start != -1:
-            detailed_thoughts = response[analysis_start:].strip()
-            final_answer = response[conclusion_start + 11:].strip()  # Show only the conclusion for concise reply
+            detailed_thoughts = response[analysis_start:conclusion_start].strip()
+            final_answer = response[conclusion_start:].strip()
         else:
             detailed_thoughts = response
-            final_answer = response[:200].strip()  # Default fallback
+            final_answer = response[:500].strip()  # Increased from 200 to 500 characters
 
         return {"detailed_thoughts": detailed_thoughts, "final_answer": final_answer}

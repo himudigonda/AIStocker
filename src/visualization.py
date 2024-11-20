@@ -29,7 +29,17 @@ def create_candlestick_chart_with_ma(data, symbol, selected_ma):
         title=f"{symbol} Stock Price with Selected Indicators",
         xaxis_title="Date",
         yaxis_title="Price",
-        template="plotly_dark"
+        template="plotly_dark",
+        xaxis=dict(
+            rangeslider=dict(visible=True),
+            type="date"
+        ),
+        yaxis=dict(
+            fixedrange=False,  # This allows vertical zooming
+            type="linear"
+        ),
+        dragmode='zoom',  # This enables both vertical and horizontal zooming
+        showlegend=True
     )
 
     return fig
