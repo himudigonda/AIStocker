@@ -1,0 +1,13 @@
+beautifulsoup4
+dash
+langchain
+langchain_ollama
+langchain-experimental
+numpy
+pandas
+plotly
+pydantic
+python-dotenv
+requests
+streamlit
+yfinance
