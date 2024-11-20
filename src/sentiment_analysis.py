@@ -1,60 +1,47 @@
+from newspaper import Article
 import requests
+import time
 from bs4 import BeautifulSoup
 from textblob import TextBlob
-import time
 
 def fetch_news(symbol):
-    """
-    Fetches the latest articles for a given stock symbol and extracts their content from the actual source.
-    """
-    try:
-        google_url = f"https://news.google.com/rss/search?q={symbol}+stock&hl=en-US&gl=US&ceid=US:en"
-        response = requests.get(google_url)
-        soup = BeautifulSoup(response.content, "xml")
+    search_url = f"https://www.google.com/search?q={symbol}+stock&tbm=nws"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36"
+    }
+    response = requests.get(search_url, headers=headers)
+    soup = BeautifulSoup(response.content, "html.parser")
 
-        articles = []
+    articles = []
+    for el in soup.select("div.SoaBEf")[:5]:  # Fetch top 5 articles
+        try:
+            link = el.find("a")["href"]
+            title = el.select_one("div.MBeuO").get_text()
+            pub_date = el.select_one(".LfVVr").get_text()
+            source = el.select_one(".NUnG9d span").get_text()
 
-        for item in soup.find_all("item")[:5]:  # Fetch top 5 articles
-            headline = item.title.text
-            redirect_link = item.link.text
-            pub_date = item.pubDate.text
+            article = Article(link)
+            article.download()
+            article.parse()
 
-            # Resolve the Google News redirect link
-            try:
-                resolved_response = requests.get(redirect_link, allow_redirects=True)
-                actual_link = resolved_response.url
+            content = article.text
+            print(f"?title: {title}")
+            print(f"?content: {content}")
 
-                # Fetch article content
-                article_response = requests.get(actual_link, headers={"User-Agent": "Mozilla/5.0"})
-                article_soup = BeautifulSoup(article_response.content, "html.parser")
+            articles.append({
+                "headline": title,
+                "content": content[:10000],  # Limit content for preview
+                "link": link,
+                "pub_date": pub_date,
+                "source": source
+            })
+            time.sleep(1)  # Avoid rate limiting
 
-                # Extract paragraphs or fallback to plain text
-                paragraphs = article_soup.find_all('p')
-                content = "\n".join([p.get_text() for p in paragraphs if p.get_text()])
+        except Exception as e:
+            print(f"Failed to fetch content from {link}: {e}")
+            continue
 
-                if not content.strip():
-                    content = article_soup.get_text(separator="\n").strip()
-
-                articles.append({
-                    "headline": headline,
-                    "content": content,  # Store full content here
-                    "link": actual_link,
-                    "pub_date": pub_date
-                })
-                time.sleep(1)
-
-            except Exception as e:
-                print(f"Failed to fetch content from {redirect_link}: {e}")
-                continue
-
-        return articles
-
-    except Exception as e:
-        print(f"Error fetching news: {e}")
-        return []
-        print(f"Error fetching news: {e}")
-        return []
-
+    return articles
 
 
 def analyze_sentiment(articles):
