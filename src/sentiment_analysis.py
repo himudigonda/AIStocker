@@ -2,31 +2,35 @@ import requests
 from bs4 import BeautifulSoup
 from textblob import TextBlob
 
-def fetch_news(symbol):
-    """
-    Fetch the latest news articles related to the stock symbol from Google News.
-    """
-    try:
-        url = f"https://news.google.com/rss/search?q={symbol}+stock"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.content, "xml")
+import requests
+from bs4 import BeautifulSoup
 
-        news_items = []
+def fetch_news(symbol):
+    try:
+        # Use Google News RSS for fetching stock news
+        google_url = f"https://news.google.com/rss/search?q={symbol}+stock&hl=en-US&gl=US&ceid=US:en"
+        response = requests.get(google_url)
+        soup = BeautifulSoup(response.content, "xml")
+        headlines = []
+
         for item in soup.find_all("item")[:5]:
             title = item.title.text
             link = item.link.text
             pub_date = item.pubDate.text
-            sentiment = analyze_sentiment(title)
-            news_items.append({"headline": title, "link": link, "date": pub_date, "sentiment": sentiment})
+            headlines.append((title, link, pub_date))  # Include title, link, and publication date
 
-        return news_items
+        return headlines
     except Exception as e:
-        print(f"Error fetching news: {e}")
-        return []
+        return []  # Return empty list if there's an error
 
-def analyze_sentiment(text):
+from textblob import TextBlob
+
+def analyze_sentiment(texts):
     """
-    Analyze the sentiment of a given text using TextBlob.
-    Returns a sentiment polarity score.
+    Analyze the sentiment of a list of texts using TextBlob.
+    Returns a list of sentiment polarity scores.
     """
-    return TextBlob(text).sentiment.polarity
+    if isinstance(texts, list):
+        return [TextBlob(text).sentiment.polarity for text in texts]
+    else:
+        return TextBlob(texts).sentiment.polarity
