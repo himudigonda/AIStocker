@@ -93,7 +93,6 @@ def create_dashboard(logger):
 
 
 
-
     # Trading Signals Tab
     with tabs[4]:
         st.subheader("💡 Trading Signals")
@@ -104,7 +103,11 @@ def create_dashboard(logger):
             signals = generate_signals(data)
             if not signals.empty:
                 st.write("Recent Trading Signals:")
-                st.dataframe(signals.tail(10)[['Close', 'Short_MA', 'Long_MA', 'Trade Signal']], use_container_width=True)
+                st.dataframe(signals.tail(10), use_container_width=True)
+
+                # Add a chart for MACD and Bollinger Bands
+                st.write("Technical Indicators Visualized:")
+                st.line_chart(data[['MACD', 'Signal_Line', 'Upper_Band', 'Lower_Band']].tail(50))
             else:
                 st.warning("No signals generated. Ensure data is sufficient.")
         else:
