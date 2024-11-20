@@ -1,5 +1,5 @@
 import streamlit as st
-from src.tools.company_info import get_company_info
+from src.tools.company_info import get_company_info, interpret_company_metrics
 from src.sentiment_analysis import fetch_news
 from src.visualization import create_candlestick_chart_with_ma
 from src.data_retrieval import get_stock_data
@@ -50,9 +50,23 @@ def create_dashboard(logger):
                 st.write(f"**Sector:** {company_info['Sector']}")
                 st.write(f"**Industry:** {company_info['Industry']}")
                 st.write(f"**Business Summary:** {company_info['Business Summary']}")
+                st.write(f"**Market Cap:** {company_info['Market Cap']}")
+                st.write(f"**Revenue:** {company_info['Revenue']}")
+                st.write(f"**Net Income:** {company_info['Net Income']}")
+                st.write(f"**EPS:** {company_info['EPS']}")
+                st.write(f"**P/E Ratio:** {company_info['P/E Ratio']}")
+                st.write(f"**Dividend Yield:** {company_info['Dividend Yield']}")
+                st.write(f"**ROE:** {company_info['ROE']}")
+                st.write(f"**ROA:** {company_info['ROA']}")
+                st.write(f"**Debt-to-Equity:** {company_info['Debt-to-Equity']}")
+                st.markdown(f"[View Latest Annual Report (10-K)]({company_info['Annual Report']})")
+                investment_insights = interpret_company_metrics(company_info)
+                if investment_insights:
+                    st.write("### Investment Insights:")
+                    for insight in investment_insights:
+                        st.write(f"- {insight}")
             else:
                 st.warning("No company information found.")
-
     # Sentiment Analysis Tab
     with tabs[3]:
         st.subheader("📰 Sentiment Analysis")
