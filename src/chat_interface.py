@@ -32,8 +32,9 @@ class ChatInterface:
             # Add the user's input to the chat
             self.add_message("user", user_input)
 
-            # Generate assistant's response
+            # Generate assistant's response (detailed + concise)
             response = self.llm_handler.process_query(user_input, self.active_symbol)
 
-            # Add the assistant's response to the chat
-            self.add_message("assistant", response)
+            # Log detailed thoughts but show only concise answer in chat
+            self.logger.debug(f"[DETAILED ANALYSIS] {response['detailed_thoughts']}")
+            self.add_message("assistant", response['final_answer'])

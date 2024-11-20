@@ -19,21 +19,28 @@ def main():
             options=["Price Analysis", "Technical Indicators", "Company Info", "Sentiment Analysis", "Trading Signals"],
             key="dashboard_section"
         )
+
+        # Dropdown for LLM selection
+        selected_model = st.selectbox(
+            "Select LLM Model",
+            options=["Ollama (Default)", "HuggingFace (Xkev/Llama-3.2V-11B-cot)"],
+            index=0,
+            key="llm_model"
+        )
+
         active_symbol = st.text_input("Quick Stock Search", placeholder="Enter stock symbol (e.g., AAPL)", key="quick_search", value="AAPL")
 
-    # Initialize LLMHandler with logger
-    llm_handler = LLMHandler(logger)
+    # Initialize LLMHandler with selected model
+    llm_handler = LLMHandler(logger, selected_model)
 
-    # Chat Interface
+    # Layout: Chat Interface and Dashboard
     col1, col2 = st.columns([1, 2], gap="small")
 
-    # Left column: Chat interface
     with col1:
         chat_interface = ChatInterface(logger, llm_handler, active_symbol)
         chat_interface.display()
         chat_interface.get_user_input()
 
-    # Right column: Dashboard
     with col2:
         create_dashboard(logger)
 
