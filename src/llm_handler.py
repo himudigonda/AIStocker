@@ -27,15 +27,15 @@ class LLMHandler:
             self.tokenizer = AutoTokenizer.from_pretrained("Xkev/Llama-3.2V-11B-cot")
             self.model = AutoModelForCausalLM.from_pretrained("Xkev/Llama-3.2V-11B-cot", device_map="auto")
 
-    def process_query(self, query, symbol):
+    def process_query(self, query, dashboard_data):
         if self.selected_model == "Ollama (Default)":
-            return self._process_with_ollama(query, symbol)
+            return self._process_with_ollama(query, dashboard_data)
         elif self.selected_model == "HuggingFace (Xkev/Llama-3.2V-11B-cot)":
-            return self._process_with_huggingface(query, symbol)
+            return self._process_with_huggingface(query, dashboard_data)
 
-    def _process_with_ollama(self, query, symbol):
-        stock_data = f"Symbol: {symbol}, Question: {query}"
-        response = self.chain.invoke({"question": query, "stock_data": stock_data})
+    def _process_with_ollama(self, query, dashboard_data):
+        stock_data_context = "\n".join([f"{key}: {value}" for key, value in dashboard_data.items()])
+        response = self.chain.invoke({"question": query, "stock_data": stock_data_context})
         return self._split_response(response)
 
     def _process_with_huggingface(self, query, symbol):
