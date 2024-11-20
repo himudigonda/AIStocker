@@ -1,9 +1,10 @@
-from src.signal_generator import generate_signals
 import streamlit as st
+from src.signal_generator import generate_signals
 from src.data_retrieval import get_stock_data
 from src.visualization import create_candlestick_chart_with_ma
 from src.sentiment_analysis import fetch_news, analyze_sentiment
 from src.tools.company_info import get_company_info
+from textblob import TextBlob
 
 def create_dashboard(logger):
     # Ensure the symbol persists across tabs
@@ -72,40 +73,35 @@ def create_dashboard(logger):
     with tabs[3]:
         st.subheader("📰 Sentiment Analysis")
         symbol = st.session_state.symbol
-        headlines = fetch_news(symbol)
+        articles = fetch_news(symbol)
 
-        if headlines:
+        if articles:
             st.write(f"**Recent news for {symbol}:**")
 
-            sentiments = analyze_sentiment([h[0] for h in headlines])  # Analyze sentiment for all headlines
-            sentiment_labels = ['Negative', 'Neutral', 'Positive']
-            sentiment_thresholds = [-0.1, 0.1]  # Define thresholds for sentiment classification
+            # Perform sentiment analysis on articles
+            sentiment_results = analyze_sentiment(articles)
 
-            for i, (headline, link, pub_date) in enumerate(headlines):
-                sentiment = sentiments[i]
-                if sentiment < sentiment_thresholds[0]:
-                    sentiment_text = sentiment_labels[0]  # Negative
-                elif sentiment > sentiment_thresholds[1]:
-                    sentiment_text = sentiment_labels[2]  # Positive
-                else:
-                    sentiment_text = sentiment_labels[1]  # Neutral
+            for article in sentiment_results:
+                st.markdown(f"### [{article['headline']}]({article['link']})")
+                st.write(f"**Published on:** {article['pub_date']}")
+                st.write(f"**Headline Sentiment:** {article['headline_sentiment']}")
+                st.write(f"**Content Sentiment:** {article['content_sentiment']}")
 
-                st.markdown(f"**[{headline}]({link})**  \nPublished on: {pub_date}  \nSentiment: **{sentiment_text}** ({sentiment:.2f})")
+                with st.expander("Read Full Article Content"):
+                    st.write(article["content"])
 
             # Calculate overall sentiment score
-            overall_sentiment = sum(sentiments) / len(sentiments)
-            if overall_sentiment < sentiment_thresholds[0]:
-                overall_sentiment_text = sentiment_labels[0]  # Negative
-            elif overall_sentiment > sentiment_thresholds[1]:
-                overall_sentiment_text = sentiment_labels[2]  # Positive
+            overall_content_sentiment = sum([TextBlob(article['content']).sentiment.polarity for article in articles]) / len(articles)
+            if overall_content_sentiment > 0.1:
+                overall_sentiment_text = "Positive"
+            elif overall_content_sentiment < -0.1:
+                overall_sentiment_text = "Negative"
             else:
-                overall_sentiment_text = sentiment_labels[1]  # Neutral
+                overall_sentiment_text = "Neutral"
 
-            st.write(f"**Overall Sentiment:** {overall_sentiment_text} ({overall_sentiment:.2f})")
-
+            st.write(f"**Overall Content Sentiment:** {overall_sentiment_text} ({overall_content_sentiment:.2f})")
         else:
             st.warning("No recent news available.")
-
 
     # Trading Signals Tab
     with tabs[4]:

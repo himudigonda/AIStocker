@@ -1,5 +1,8 @@
 import streamlit as st
 import src.tools.company_info as company_info
+from src.tools.company_info import get_company_info
+from src.sentiment_analysis import analyze_sentiment, fetch_news
+
 class ChatInterface:
     def __init__(self, logger, llm_handler, active_symbol):
         self.logger = logger

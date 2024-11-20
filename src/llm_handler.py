@@ -34,7 +34,10 @@ class LLMHandler:
             return self._process_with_huggingface(query, dashboard_data)
 
     def _process_with_ollama(self, query, dashboard_data):
-        sentiment_summary = "\n".join([f"{headline}: {score:.2f}" for headline, score in dashboard_data['Sentiment']])
+        # sentiment_summary = "\n".join([f"{headline}: {score:.2f}" for headline, score in dashboard_data['Sentiment']])
+        sentiment_summary = "\n".join([f"{item['headline']}: {item['headline_sentiment']} | Content Sentiment: {item['content_sentiment']}"
+        for item in dashboard_data['Sentiment']
+        ])
         stock_data_context = f"""
         Symbol: {dashboard_data.get('Symbol')}
         Sentiment Analysis:
