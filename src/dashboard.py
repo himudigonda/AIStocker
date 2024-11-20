@@ -1,3 +1,4 @@
+from src.signal_generator import generate_signals
 import streamlit as st
 from src.data_retrieval import get_stock_data
 from src.visualization import create_candlestick_chart_with_ma
@@ -91,7 +92,20 @@ def create_dashboard(logger):
             st.warning("No recent news available.")
 
 
+
+
     # Trading Signals Tab
     with tabs[4]:
         st.subheader("💡 Trading Signals")
-        st.write("Trading signals will be here.")
+        symbol = st.session_state.symbol
+        data = get_stock_data(symbol)
+
+        if data is not None:
+            signals = generate_signals(data)
+            if not signals.empty:
+                st.write("Recent Trading Signals:")
+                st.dataframe(signals.tail(10)[['Close', 'Short_MA', 'Long_MA', 'Trade Signal']], use_container_width=True)
+            else:
+                st.warning("No signals generated. Ensure data is sufficient.")
+        else:
+            st.warning("Invalid stock symbol or no data available.")
