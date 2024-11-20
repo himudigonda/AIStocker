@@ -1,5 +1,5 @@
 import streamlit as st
-
+import src.tools.company_info as company_info
 class ChatInterface:
     def __init__(self, logger, llm_handler, active_symbol):
         self.logger = logger
