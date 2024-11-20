@@ -1,5 +1,4 @@
 import yfinance as yf
-import yfinance as yf
 
 calculate_moving_average_schema = {
     "name": "calculate_moving_average",
@@ -20,11 +19,18 @@ calculate_moving_average_schema = {
     },
 }
 
+
 def calculate_moving_average(symbol, days):
     stock = yf.Ticker(symbol)
-    data = stock.history(period=f"{days + 10}d")  # Fetch enough data
-    if len(data) < days:
-        return None  # Not enough data to calculate moving average
-    data['Moving Average'] = data['Close'].rolling(window=days).mean()
-    ma = data['Moving Average'].iloc[-1]
-    return f"The {days}-day moving average for {symbol} is ${ma:.2f}"
+    try:
+        period = "max" if days > 730 else "2y"  # Choose max for large days
+        data = stock.history(period=period)
+
+        if len(data) < days:
+            return None
+
+        data['Moving Average'] = data['Close'].rolling(window=days).mean()
+        ma = data['Moving Average'].iloc[-1]
+        return f"The {days}-day moving average for {symbol} is ${ma:.2f}"
+    except Exception as e:
+        return f"Error calculating moving average for {symbol}: {str(e)}"

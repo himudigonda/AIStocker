@@ -1,9 +1,10 @@
 import streamlit as st
 from src.data_retrieval import get_stock_data
-from src.visualization import create_candlestick_chart, create_sentiment_heatmap
+from src.visualization import create_candlestick_chart_with_ma
 from src.signal_generator import generate_signals
 from src.sentiment_analysis import fetch_news, analyze_sentiment
 from src.tools.moving_average import calculate_moving_average
+from src.tools.company_info import get_company_info
 
 def create_dashboard(debug_log):
     tabs = st.tabs([
@@ -19,36 +20,22 @@ def create_dashboard(debug_log):
         symbol = st.text_input("Enter stock symbol (e.g., AAPL):", "AAPL", key="symbol_price_analysis")
         if symbol:
             data = get_stock_data(symbol)
-            if data is not None and not data.empty:
-                st.plotly_chart(create_candlestick_chart(data, symbol), use_container_width=True)
-            else:
-                st.warning("Invalid stock symbol or no data available.")
+            if data is not None:
+                ma_10 = data['Close'].rolling(10).mean()
+                ma_50 = data['Close'].rolling(50).mean()
+                data['10-Day MA'] = ma_10
+                data['50-Day MA'] = ma_50
+                st.plotly_chart(create_candlestick_chart_with_ma(data, symbol, '10-Day MA', '50-Day MA'))
 
-    # Moving Averages Tab
-    with tabs[1]:
-        symbol = st.text_input("Enter stock symbol for Moving Averages:", "AAPL", key="symbol_moving_averages")
-        days = st.slider("Select period for moving average (days):", 10, 200, value=50)
+    # Company Info Tab
+    with tabs[2]:
+        symbol = st.text_input("Enter company symbol:", "AAPL", key="symbol_company_info")
         if symbol:
-            ma = calculate_moving_average(symbol, days)
-            if ma:
-                st.success(ma)
+            info = get_company_info(symbol)
+            if "Error" in info:
+                st.warning(info["Error"])
             else:
-                st.warning("Not enough data to calculate the moving average.")
-
-    # Sentiment Analysis Tab
-    with tabs[3]:
-        headlines = fetch_news(symbol)
-        if headlines:
-            sentiments = analyze_sentiment(headlines)
-            st.plotly_chart(create_sentiment_heatmap(headlines, sentiments), use_container_width=True)
-        else:
-            st.warning("No news found for this symbol.")
-
-    # Trading Signals Tab
-    with tabs[4]:
-        if symbol:
-            signals = generate_signals(get_stock_data(symbol))
-            if not signals.empty:
-                st.dataframe(signals)
-            else:
-                st.warning("Not enough data to generate trading signals.")
+                st.subheader(f"{info['Company Name']}")
+                st.write(f"**Industry**: {info['Industry']}")
+                st.write(f"**Sector**: {info['Sector']}")
+                st.write(f"**Business Summary**: {info['Business Summary']}")
