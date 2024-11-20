@@ -4,15 +4,14 @@ from src.dashboard import create_dashboard
 from src.llm_handler import LLMHandler
 
 def main():
-    st.set_page_config(layout="wide")  # Dark theme for better aesthetics.
-    st.title("Stock Market Analysis")
-
-    debug_log = st.expander("Debug Log", expanded=False)  # Collapsible debug section.
-
-    chat_interface = ChatInterface(debug_log)
-    llm_handler = LLMHandler(debug_log)
+    st.set_page_config(page_title="AIStocker", layout="wide", initial_sidebar_state="collapsed")
+    st.title("AIStocker: Intelligent Stock Analysis Chatbot")
 
     col1, col2 = st.columns([1, 2])
+
+    debug_log = st.expander("Debug Log", expanded=True)
+    chat_interface = ChatInterface(debug_log)
+    llm_handler = LLMHandler(debug_log)
 
     with col1:
         chat_interface.display()

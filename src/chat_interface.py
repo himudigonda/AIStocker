@@ -19,6 +19,4 @@ class ChatInterface:
             st.markdown(content)
 
     def get_user_input(self):
-        return st.chat_input(
-            "Ask about stock prices, company info, or moving averages (e.g., 'AAPL 50-day MA')"
-        )
+        return st.chat_input("Ask about stock analysis, technical metrics, or general financial advice.")

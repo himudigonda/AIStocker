@@ -19,11 +19,10 @@ class LLMHandler:
         if 'function_call' in response.additional_kwargs:
             function_name = response.additional_kwargs['function_call']['name']
             arguments = response.additional_kwargs['function_call']['arguments']
-            self.debug_log.write(f"[DEBUG] Invoking function: {function_name}")
+            self.debug_log.write(f"[DEBUG] Invoking tool: {function_name}")
 
             tool = self.tools.get(function_name)
             if tool:
                 return tool(**arguments)
             else:
-                return f"Tool {function_name} not available."
-        return "Query could not be processed. Please try again."
+                return f"Tool {function_name} is not available."
