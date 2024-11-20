@@ -87,19 +87,9 @@ def create_dashboard(logger):
                 st.write(f"**Headline Sentiment:** {article['headline_sentiment']}")
                 st.write(f"**Content Sentiment:** {article['content_sentiment']}")
 
-                with st.expander("Read Full Article Content"):
-                    st.write(article["content"])
-
-            # Calculate overall sentiment score
-            overall_content_sentiment = sum([TextBlob(article['content']).sentiment.polarity for article in articles]) / len(articles)
-            if overall_content_sentiment > 0.1:
-                overall_sentiment_text = "Positive"
-            elif overall_content_sentiment < -0.1:
-                overall_sentiment_text = "Negative"
-            else:
-                overall_sentiment_text = "Neutral"
-
-            st.write(f"**Overall Content Sentiment:** {overall_sentiment_text} ({overall_content_sentiment:.2f})")
+                # Display summary in an expandable box
+                with st.expander("Summary of the Article"):
+                    st.write(article["summary"])
         else:
             st.warning("No recent news available.")
 
