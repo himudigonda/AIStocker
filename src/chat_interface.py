@@ -46,13 +46,11 @@ class ChatInterface:
 
             # Generate assistant's response (detailed + concise)
             dashboard_data = {
-                "Price": latest_price,
-                "Company Info": get_company_info(symbol),
-                "Moving Averages": selected_ma_data,
-                "Sentiment Score": overall_sentiment,
-                "Trading Signals": latest_signals,
+                "Price": "...",  # Latest price from dashboard
+                "Company Info": get_company_info(self.active_symbol),
+                "Sentiment": analyze_sentiment(fetch_news(self.active_symbol)),
             }
             response = self.llm_handler.process_query(user_input, dashboard_data)
-            # Log detailed thoughts and add concise answer in UI
-            self.logger.debug(f"[DETAILED ANALYSIS] {response['detailed_thoughts']}")
+
+            # Add LLM's concise and detailed response
             self.add_message("assistant", response['final_answer'], response['detailed_thoughts'])

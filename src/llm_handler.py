@@ -34,7 +34,18 @@ class LLMHandler:
             return self._process_with_huggingface(query, dashboard_data)
 
     def _process_with_ollama(self, query, dashboard_data):
-        stock_data_context = "\n".join([f"{key}: {value}" for key, value in dashboard_data.items()])
+        sentiment_summary = "\n".join([f"{headline}: {score:.2f}" for headline, score in dashboard_data['Sentiment']])
+        stock_data_context = f"""
+        Symbol: {dashboard_data.get('Symbol')}
+        Sentiment Analysis:
+        {sentiment_summary}
+
+        Company Info:
+        {dashboard_data.get('Company Info')}
+
+        Other Data:
+        {dashboard_data}
+        """
         response = self.chain.invoke({"question": query, "stock_data": stock_data_context})
         return self._split_response(response)
 

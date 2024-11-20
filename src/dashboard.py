@@ -75,22 +75,36 @@ def create_dashboard(logger):
         headlines = fetch_news(symbol)
 
         if headlines:
+            st.write(f"**Recent news for {symbol}:**")
+
+            sentiments = analyze_sentiment([h[0] for h in headlines])  # Analyze sentiment for all headlines
+            sentiment_labels = ['Negative', 'Neutral', 'Positive']
+            sentiment_thresholds = [-0.1, 0.1]  # Define thresholds for sentiment classification
+
             for i, (headline, link, pub_date) in enumerate(headlines):
-                st.write(f"**{i+1}. [{headline}]({link})**  \nPublished on: {pub_date}")
+                sentiment = sentiments[i]
+                if sentiment < sentiment_thresholds[0]:
+                    sentiment_text = sentiment_labels[0]  # Negative
+                elif sentiment > sentiment_thresholds[1]:
+                    sentiment_text = sentiment_labels[2]  # Positive
+                else:
+                    sentiment_text = sentiment_labels[1]  # Neutral
 
-            # Analyze sentiment for all headlines
-            sentiments = analyze_sentiment([h[0] for h in headlines])
-            st.write("**Sentiment Analysis Scores:**")
+                st.markdown(f"**[{headline}]({link})**  \nPublished on: {pub_date}  \nSentiment: **{sentiment_text}** ({sentiment:.2f})")
 
-            # Display sentiment alongside headlines
-            for i, sentiment in enumerate(sentiments):
-                st.write(f"Headline {i+1}: Sentiment Score: {sentiment:.2f}")
-
+            # Calculate overall sentiment score
             overall_sentiment = sum(sentiments) / len(sentiments)
-            st.write(f"**Overall Sentiment Score:** {overall_sentiment:.2f}")
+            if overall_sentiment < sentiment_thresholds[0]:
+                overall_sentiment_text = sentiment_labels[0]  # Negative
+            elif overall_sentiment > sentiment_thresholds[1]:
+                overall_sentiment_text = sentiment_labels[2]  # Positive
+            else:
+                overall_sentiment_text = sentiment_labels[1]  # Neutral
+
+            st.write(f"**Overall Sentiment:** {overall_sentiment_text} ({overall_sentiment:.2f})")
+
         else:
             st.warning("No recent news available.")
-
 
 
     # Trading Signals Tab
