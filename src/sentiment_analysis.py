@@ -3,35 +3,30 @@ from bs4 import BeautifulSoup
 from textblob import TextBlob
 
 def fetch_news(symbol):
+    """
+    Fetch the latest news articles related to the stock symbol from Google News.
+    """
     try:
-        # Use Yahoo Finance first
-        url = f"https://finance.yahoo.com/quote/{symbol}?p={symbol}&.tsrc=fin-srch"
+        url = f"https://news.google.com/rss/search?q={symbol}+stock"
         response = requests.get(url)
-        soup = BeautifulSoup(response.content, 'html.parser')
+        soup = BeautifulSoup(response.content, "xml")
 
-        headlines = [headline.text for headline in soup.find_all('h3')[:5]]
-        if headlines:
-            return headlines
+        news_items = []
+        for item in soup.find_all("item")[:5]:
+            title = item.title.text
+            link = item.link.text
+            pub_date = item.pubDate.text
+            sentiment = analyze_sentiment(title)
+            news_items.append({"headline": title, "link": link, "date": pub_date, "sentiment": sentiment})
 
-        # Fallback to Google News
-        google_url = f"https://news.google.com/rss/search?q={symbol}+stock"
-        news = requests.get(google_url).text
-        soup = BeautifulSoup(news, "xml")
-        headlines = [item.title.text for item in soup.find_all("item")[:5]]
-        return headlines
-
-    except Exception:
+        return news_items
+    except Exception as e:
+        print(f"Error fetching news: {e}")
         return []
 
-def analyze_sentiment(news_headlines):
+def analyze_sentiment(text):
     """
-    Perform sentiment analysis on a list of news headlines.
-
-    Args:
-        news_headlines (list): List of headlines.
-
-    Returns:
-        List of sentiment scores.
+    Analyze the sentiment of a given text using TextBlob.
+    Returns a sentiment polarity score.
     """
-    sentiment_scores = [TextBlob(headline).sentiment.polarity for headline in news_headlines]
-    return sentiment_scores
+    return TextBlob(text).sentiment.polarity

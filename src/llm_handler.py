@@ -1,4 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate
+from langchain.prompts import ChatPromptTemplate
 from langchain_ollama.llms import OllamaLLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
@@ -43,7 +43,7 @@ class LLMHandler:
         inputs = self.tokenizer(stock_context, return_tensors="pt").to("cuda")
         outputs = self.model.generate(
             inputs["input_ids"],
-            max_length=300,
+            max_length=500,
             num_beams=3,
             early_stopping=True
         )
@@ -56,15 +56,15 @@ class LLMHandler:
         """
         self.logger.debug(f"[DEBUG] LLM Full Analysis: {response}")
 
-        # Use simple keyword parsing to identify sections. Assume response has sections for 'Analysis' and 'Conclusion'
+        # Assume response has sections for 'Analysis' and 'Conclusion'
         analysis_start = response.find("Analysis:")
         conclusion_start = response.find("Conclusion:")
 
         if analysis_start != -1 and conclusion_start != -1:
-            detailed_thoughts = response[analysis_start:conclusion_start].strip()
-            final_answer = response[conclusion_start + 11:].strip()
+            detailed_thoughts = response[analysis_start:].strip()
+            final_answer = response[conclusion_start + 11:].strip()  # Show only the conclusion for concise reply
         else:
             detailed_thoughts = response
-            final_answer = "Here are my thoughts: " + response[:150].strip()  # Default concise reply if no clear conclusion.
+            final_answer = response[:200].strip()  # Default fallback
 
         return {"detailed_thoughts": detailed_thoughts, "final_answer": final_answer}
