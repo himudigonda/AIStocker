@@ -1,7 +1,7 @@
 import unittest
 from src.tools.stock_price import get_stock_price
 from src.tools.company_info import get_company_info
-from src.tools.moving_average import calculate_moving_average
+from src.tools.moving_average import calculate_moving_averages
 
 class TestTools(unittest.TestCase):
     def test_get_stock_price(self):
@@ -15,7 +15,7 @@ class TestTools(unittest.TestCase):
         self.assertIn("company", result)
 
     def test_calculate_moving_average(self):
-        result = calculate_moving_average("AAPL", 50)
+        result = calculate_moving_averages("AAPL", 50)
         self.assertIn("50-day moving average", result)
         self.assertIn("AAPL", result)
         self.assertIn("$", result)

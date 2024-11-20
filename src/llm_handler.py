@@ -1,5 +1,5 @@
 from langchain_ollama import ChatOllama
-from src.tools import get_stock_price, get_company_info, calculate_moving_average
+from src.tools import get_stock_price, get_company_info, calculate_moving_averages
 
 class LLMHandler:
     def __init__(self, debug_log):
@@ -8,7 +8,7 @@ class LLMHandler:
         self.tools = {
             "get_stock_price": get_stock_price,
             "get_company_info": get_company_info,
-            "calculate_moving_average": calculate_moving_average,
+            "calculate_moving_averages": calculate_moving_averages,
         }
         self.debug_log.write("[DEBUG] LLMHandler initialized with tools.")
 
