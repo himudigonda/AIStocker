@@ -41,15 +41,45 @@ def create_dashboard(logger):
         st.subheader("📊 Technical Indicators")
         symbol = st.session_state.symbol
         data = get_stock_data(symbol)
+
         if data is not None:
-            ma_options = [5, 10, 20, 50, 100, 200]
-            selected_ma = st.multiselect(
-                "Select Moving Averages to Display",
-                options=ma_options,
-                default=[10, 50]
-            )
+            st.write("Select the technical indicators you want to display:")
+
+            # Use st.columns to arrange checkboxes horizontally
+            col1, col2, col3, col4, col5, col6 = st.columns(6)
+            with col1:
+                show_5_day_ma = st.checkbox("5-Day MA", value=False)
+            with col2:
+                show_10_day_ma = st.checkbox("10-Day MA", value=True)
+            with col3:
+                show_20_day_ma = st.checkbox("20-Day MA", value=False)
+            with col4:
+                show_50_day_ma = st.checkbox("50-Day MA", value=True)
+            with col5:
+                show_100_day_ma = st.checkbox("100-Day MA", value=False)
+            with col6:
+                show_200_day_ma = st.checkbox("200-Day MA", value=False)
+
+            # Determine which moving averages are selected
+            selected_ma = []
+            if show_5_day_ma:
+                selected_ma.append(5)
+            if show_10_day_ma:
+                selected_ma.append(10)
+            if show_20_day_ma:
+                selected_ma.append(20)
+            if show_50_day_ma:
+                selected_ma.append(50)
+            if show_100_day_ma:
+                selected_ma.append(100)
+            if show_200_day_ma:
+                selected_ma.append(200)
+
+            # Add selected moving averages to the data
             for ma in selected_ma:
                 data[f"{ma}-Day MA"] = data['Close'].rolling(ma).mean()
+
+            # Display the candlestick chart with selected indicators
             st.plotly_chart(
                 create_candlestick_chart_with_ma(data, symbol, selected_ma),
                 use_container_width=True,
