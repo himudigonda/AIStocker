@@ -21,11 +21,11 @@ class LLMHandler:
 
                 Answer: Let's analyze step by step and generate concise insights.
                 ---
-                Detailed Analysis:
+                Analysis:
                 [Provide a detailed breakdown of the data and insights, step by step.]
 
                 Final Answer:
-                [Provide a short, actionable summary or conclusion based on the analysis above.]
+                [Provide a short, actionable answer based on the analysis above and make sure to ansewr the given question {question}.]
             """)
             self.model = OllamaLLM(model="llama3.1:latest")
             self.chain = self.prompt | self.model
@@ -101,8 +101,9 @@ class LLMHandler:
         self.logger.debug(f"[DEBUG] LLM Full Analysis: {response}")
 
         # Assume response has sections for 'Detailed Analysis' and 'Final Answer'
-        analysis_start = response.find("Detailed Analysis:")
+        analysis_start = response.find("Analysis:")
         final_answer_start = response.find("Final Answer:")
+        print(">>> ", analysis_start, final_answer_start)
 
         if analysis_start != -1 and final_answer_start != -1:
             detailed_thoughts = response[analysis_start + len("Detailed Analysis:"):final_answer_start].strip()
