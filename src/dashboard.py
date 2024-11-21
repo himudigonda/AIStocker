@@ -117,7 +117,7 @@ def create_dashboard(logger):
     with tabs[3]:
         st.subheader("📰 Sentiment Analysis")
         symbol = st.session_state.symbol
-        articles = fetch_news(symbol, logger)
+        articles = fetch_news(symbol)
 
         if articles:
             st.write(f"**Recent news for {symbol}:**")
@@ -136,22 +136,27 @@ def create_dashboard(logger):
                     st.write(article["summary"])
         else:
             st.warning("No recent news available.")
-    # Trading Signals Tab
+
     with tabs[4]:
         st.subheader("💡 Trading Signals")
         symbol = st.session_state.symbol
-        data = get_stock_data(symbol)
 
+        # Fetch stock data
+        st.write(f"Fetching data for symbol: {symbol}")
+        data = get_stock_data(symbol, period="1y", interval="1d")  # Long history and daily interval
+        print(">?>data:  ",data)
         if data is not None:
+            st.write("Generating trading signals...")
             signals = generate_signals(data)
+
             if not signals.empty:
                 st.write("Recent Trading Signals:")
                 st.dataframe(signals.tail(10), use_container_width=True)
 
-                # Add a chart for MACD and Bollinger Bands
+                # Add visualization for MACD and Bollinger Bands
                 st.write("Technical Indicators Visualized:")
                 st.line_chart(data[['MACD', 'Signal_Line', 'Upper_Band', 'Lower_Band']].tail(50))
             else:
-                st.warning("No signals generated. Ensure data is sufficient.")
+                st.warning("No trading signals generated. Ensure data is sufficient.")
         else:
-            st.warning("Invalid stock symbol or no data available.")
+            st.error(f"Invalid stock symbol ({symbol}) or no data available. Please check and try again.")

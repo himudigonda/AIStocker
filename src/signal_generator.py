@@ -1,4 +1,5 @@
 import pandas as pd
+import logging
 
 def calculate_rsi(series, period=14):
     delta = series.diff(1)
@@ -22,18 +23,36 @@ def calculate_bollinger_bands(series, window=20, num_std_dev=2):
     return upper_band, lower_band
 
 def generate_signals(data):
+    logger = logging.getLogger(__name__)
+
     if data is None or data.empty:
+        logger.warning("No data provided for signal generation.")
         return pd.DataFrame()
 
-    data['Short_MA'] = data['Close'].rolling(window=10).mean()
-    data['Long_MA'] = data['Close'].rolling(window=50).mean()
-    data['RSI'] = calculate_rsi(data['Close'])
-    data['MACD'], data['Signal_Line'] = calculate_macd(data['Close'])
-    data['Upper_Band'], data['Lower_Band'] = calculate_bollinger_bands(data['Close'])
+    try:
+        logger.info("Generating signals...")
 
-    data['Signal'] = 0
-    data.loc[data['Short_MA'] > data['Long_MA'], 'Signal'] = 1
-    data.loc[data['Short_MA'] <= data['Long_MA'], 'Signal'] = -1
-    data['Trade Signal'] = data['Signal'].diff().map({1: 'Buy', -1: 'Sell'}).fillna('Hold')
+        # Calculate moving averages
+        data['Short_MA'] = data['Close'].rolling(window=10).mean()
+        data['Long_MA'] = data['Close'].rolling(window=50).mean()
 
-    return data[['Close', 'Short_MA', 'Long_MA', 'RSI', 'MACD', 'Signal_Line', 'Upper_Band', 'Lower_Band', 'Trade Signal']]
+        # Calculate RSI
+        data['RSI'] = calculate_rsi(data['Close'])
+
+        # Calculate MACD
+        data['MACD'], data['Signal_Line'] = calculate_macd(data['Close'])
+
+        # Calculate Bollinger Bands
+        data['Upper_Band'], data['Lower_Band'] = calculate_bollinger_bands(data['Close'])
+
+        # Generate buy/sell signals based on moving averages
+        data['Signal'] = 0
+        data.loc[data['Short_MA'] > data['Long_MA'], 'Signal'] = 1
+        data.loc[data['Short_MA'] <= data['Long_MA'], 'Signal'] = -1
+        data['Trade Signal'] = data['Signal'].diff().map({1: 'Buy', -1: 'Sell'}).fillna('Hold')
+
+        logger.info("Signals generated successfully.")
+        return data[['Close', 'Short_MA', 'Long_MA', 'RSI', 'MACD', 'Signal_Line', 'Upper_Band', 'Lower_Band', 'Trade Signal']]
+    except Exception as e:
+        logger.error(f"Error generating signals: {e}")
+        return pd.DataFrame()

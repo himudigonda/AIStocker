@@ -10,7 +10,7 @@ import time
 # Initialize Ollama LLM with the "smollm:135m" model
 ollama_model = OllamaLLM(model="llama3.2:1b")
 
-def fetch_news(symbol, logger):
+def fetch_news(symbol):
     search_url = f"https://www.google.com/search?q={symbol}+stock&tbm=nws"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36"
@@ -82,7 +82,8 @@ def fetch_news(symbol, logger):
                     valid_articles_count += 1
 
                 except Exception as e:
-                    logger.error(f"Failed to process an article: {e}")
+                    # logger.error(f"Failed to process an article: {e}")
+                    print(f"Failed to process an article: {e}")
                     continue
 
                 # Update progress bar
@@ -110,15 +111,6 @@ def display_articles(articles):
         st.progress(abs(article["content_sentiment_score"]))  # Example progress bar based on sentiment score
 
 
-def main():
-    symbol = st.text_input("Enter Stock Symbol (e.g., AAPL):", "AAPL")
-    if st.button("Fetch News"):
-        articles = fetch_news(symbol)
-        if articles:
-            st.success("All articles processed!")
-            display_articles(articles)
-        else:
-            st.warning("No news articles found.")
 
 
 def analyze_sentiment(articles):
