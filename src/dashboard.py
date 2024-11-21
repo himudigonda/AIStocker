@@ -26,7 +26,9 @@ def create_dashboard(logger):
     with tabs[0]:
         st.subheader("📈 Price Analysis")
         symbol = st.session_state.symbol
-        data = get_stock_data(symbol)
+        max_period = "1y"
+        duration = "1d"
+        data = get_stock_data(symbol, period=max_period, interval=duration)
         if data is not None:
             st.plotly_chart(
                 create_candlestick_chart_with_ma(data, symbol, []),  # No moving averages in Price Analysis
@@ -40,9 +42,22 @@ def create_dashboard(logger):
     with tabs[1]:
         st.subheader("📊 Technical Indicators")
         symbol = st.session_state.symbol
-        data = get_stock_data(symbol)
 
-        if data is not None:
+        # Add a radio button for interval selection
+        duration = st.radio(
+            "Candlestick Duration",
+            options=["1d", "1wk", "1mo"],  # Only valid intervals
+            index=0,  # Default to "1d"
+            horizontal=True
+        )
+
+        # Set the period to fetch up to 8 years of data
+        max_period = "1y"  # Fetch 8 years of data
+
+        # Attempt to fetch data
+        data = get_stock_data(symbol, period=max_period, interval=duration)
+
+        if data is not None and not data.empty:
             st.write("Select the technical indicators you want to display:")
 
             # Use st.columns to arrange checkboxes horizontally
@@ -83,11 +98,10 @@ def create_dashboard(logger):
             st.plotly_chart(
                 create_candlestick_chart_with_ma(data, symbol, selected_ma),
                 use_container_width=True,
-                key=f"{symbol}_technical_indicators_{selected_ma}"
+                key=f"{symbol}_technical_indicators_{selected_ma}_{duration}"
             )
         else:
-            st.warning("Invalid stock symbol or no data available.")
-
+            st.error("Failed to retrieve data. Please check the stock symbol.")
     # Company Info Tab
     with tabs[2]:
         st.subheader("🏢 Company Info")
