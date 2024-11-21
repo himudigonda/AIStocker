@@ -6,11 +6,38 @@ import requests
 import streamlit as st
 import time
 
-
 # Initialize Ollama LLM with the "smollm:135m" model
 ollama_model = OllamaLLM(model="llama3.2:1b")
 
+
+class NewsCache:
+    def __init__(self):
+        self.cache = {}
+
+    def get(self, symbol):
+        # Check if the symbol exists in the cache
+        if symbol in self.cache:
+            # Check if the cached data is less than 15 minutes old
+            if time.time() - self.cache[symbol]["timestamp"] < 900:  # 900 seconds = 15 minutes
+                return self.cache[symbol]["data"]
+        return None
+
+    def set(self, symbol, data):
+        self.cache[symbol] = {
+            "data": data,
+            "timestamp": time.time()
+        }
+
+news_cache = NewsCache()
+
 def fetch_news(symbol):
+    # Check the cache
+    cached_data = news_cache.get(symbol)
+    if cached_data is not None:
+        print(f"Using cached news for {symbol}.")
+        return cached_data
+
+    # Fetch news as usual if not cached
     search_url = f"https://www.google.com/search?q={symbol}+stock&tbm=nws"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36"
@@ -82,7 +109,6 @@ def fetch_news(symbol):
                     valid_articles_count += 1
 
                 except Exception as e:
-                    # logger.error(f"Failed to process an article: {e}")
                     print(f"Failed to process an article: {e}")
                     continue
 
@@ -91,7 +117,11 @@ def fetch_news(symbol):
 
         progress.progress(1.0)  # Ensure progress bar is fully completed
 
+    # Save the results in the cache
+    news_cache.set(symbol, articles)
+
     return articles
+
 
 def display_articles(articles):
     """

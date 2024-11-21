@@ -3,6 +3,7 @@ from langchain_ollama.llms import OllamaLLM
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import torch
 
+
 class LLMHandler:
     def __init__(self, logger, selected_model="Ollama (Default)"):
         self.logger = logger
@@ -19,6 +20,12 @@ class LLMHandler:
                 {stock_data}
 
                 Answer: Let's analyze step by step and generate concise insights.
+                ---
+                Detailed Analysis:
+                [Provide a detailed breakdown of the data and insights, step by step.]
+
+                Final Answer:
+                [Provide a short, actionable summary or conclusion based on the analysis above.]
             """)
             self.model = OllamaLLM(model="llama3.1:latest")
             self.chain = self.prompt | self.model
@@ -34,33 +41,54 @@ class LLMHandler:
             return self._process_with_huggingface(query, dashboard_data)
 
     def _process_with_ollama(self, query, dashboard_data):
-        # sentiment_summary = "\n".join([f"{headline}: {score:.2f}" for headline, score in dashboard_data['Sentiment']])
-        sentiment_summary = "\n".join([f"{item['headline']}: {item['headline_sentiment']} | Content Sentiment: {item['content_sentiment']}"
-        for item in dashboard_data['Sentiment']
+        # Prepare sentiment summary
+        sentiment_summary = "\n".join([
+            f"{item['headline']}: {item['headline_sentiment']} | Content Sentiment: {item['content_sentiment']}"
+            for item in dashboard_data.get('Sentiment', [])
         ])
+
+        # Prepare stock data context
         stock_data_context = f"""
-        Symbol: {dashboard_data.get('Symbol')}
+        Symbol: {dashboard_data.get('Symbol', 'N/A')}
         Sentiment Analysis:
         {sentiment_summary}
 
         Company Info:
-        {dashboard_data.get('Company Info')}
+        {dashboard_data.get('Company Info', 'N/A')}
 
         Other Data:
         {dashboard_data}
         """
+        # Invoke Ollama model
         response = self.chain.invoke({"question": query, "stock_data": stock_data_context})
         return self._split_response(response)
 
-    def _process_with_huggingface(self, query, symbol):
-        stock_context = f"User asked about stock: {symbol}. Question: {query}\n"
+    def _process_with_huggingface(self, query, dashboard_data):
+        # Prepare stock context for HuggingFace model
+        sentiment_summary = "\n".join([
+            f"{item['headline']}: {item['headline_sentiment']} | Content Sentiment: {item['content_sentiment']}"
+            for item in dashboard_data.get('Sentiment', [])
+        ])
+
+        stock_context = f"""
+        User asked: {query}
+
+        Stock Data Context:
+        Symbol: {dashboard_data.get('Symbol', 'N/A')}
+        Sentiment Analysis:
+        {sentiment_summary}
+
+        Company Info:
+        {dashboard_data.get('Company Info', 'N/A')}
+        """
+        # Generate response using HuggingFace model
         inputs = self.tokenizer(stock_context, return_tensors="pt").to("cuda")
         outputs = self.model.generate(
             inputs["input_ids"],
-            max_length=2000,  # Increased from 1000 to 2000
+            max_length=2000,
             num_beams=3,
             early_stopping=True,
-            eos_token_id=self.tokenizer.eos_token_id,  # Ensure generation stops at end of sequence
+            eos_token_id=self.tokenizer.eos_token_id,
             pad_token_id=self.tokenizer.pad_token_id
         )
         response = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
@@ -72,15 +100,16 @@ class LLMHandler:
         """
         self.logger.debug(f"[DEBUG] LLM Full Analysis: {response}")
 
-        # Assume response has sections for 'Analysis' and 'Conclusion'
-        analysis_start = response.find("Analysis:")
-        conclusion_start = response.find("Conclusion:")
+        # Assume response has sections for 'Detailed Analysis' and 'Final Answer'
+        analysis_start = response.find("Detailed Analysis:")
+        final_answer_start = response.find("Final Answer:")
 
-        if analysis_start != -1 and conclusion_start != -1:
-            detailed_thoughts = response[analysis_start:conclusion_start].strip()
-            final_answer = response[conclusion_start:].strip()
+        if analysis_start != -1 and final_answer_start != -1:
+            detailed_thoughts = response[analysis_start + len("Detailed Analysis:"):final_answer_start].strip()
+            final_answer = response[final_answer_start + len("Final Answer:"):].strip()
         else:
-            detailed_thoughts = response
-            final_answer = response[:500].strip()  # Increased from 200 to 500 characters
+            # Fallback: If structure is not as expected
+            detailed_thoughts = response.strip()
+            final_answer = response[:300].strip()  # Take the first 300 characters for a concise response
 
         return {"detailed_thoughts": detailed_thoughts, "final_answer": final_answer}
