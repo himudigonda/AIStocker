@@ -73,7 +73,7 @@ def create_dashboard(logger):
     with tabs[3]:
         st.subheader("📰 Sentiment Analysis")
         symbol = st.session_state.symbol
-        articles = fetch_news(symbol)
+        articles = fetch_news(symbol, logger)
 
         if articles:
             st.write(f"**Recent news for {symbol}:**")
@@ -92,7 +92,6 @@ def create_dashboard(logger):
                     st.write(article["summary"])
         else:
             st.warning("No recent news available.")
-
     # Trading Signals Tab
     with tabs[4]:
         st.subheader("💡 Trading Signals")
