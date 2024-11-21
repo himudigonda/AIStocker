@@ -15,7 +15,7 @@ class ChatInterface:
             st.session_state.messages = []
 
     def display(self):
-        st.title("📈 StockerBuddy Chat Assistant")
+        st.title("📈 StockerBuddy")
 
         # Display chat messages from session state on app rerun
         for message in st.session_state.messages:

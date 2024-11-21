@@ -9,11 +9,11 @@ logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %
 logger = logging.getLogger(__name__)
 
 def main():
-    st.set_page_config(page_title="📈 LetsBuyStonks", layout="wide", initial_sidebar_state="collapsed")
+    st.set_page_config(page_title="📈 StockerBuddy", layout="wide", initial_sidebar_state="collapsed")
 
     # Sidebar Navigation
     with st.sidebar:
-        st.markdown("# 📈 LetsBuyStonks")
+        st.markdown("# 📈 StockerBuddy")
         st.radio(
             "Dashboard Sections",
             options=["Price Analysis", "Technical Indicators", "Company Info", "Sentiment Analysis", "Trading Signals"],
