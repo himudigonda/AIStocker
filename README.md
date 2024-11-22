@@ -39,7 +39,7 @@ ScripBuddy is a sophisticated stock analysis and trading assistance platform met
 ## ⛓️ Analysis Flow Overview
 The following diagram delineates the structural framework of ScripBuddy, highlighting data dependencies, concurrency, data flow, and interrelationships among components:
 
-![Analysis Flow](./data/programflow.jpg)
+![Analysis Flow](./data/programflow.png)
 
 The analytical process initiates with the user submitting a stock-related query, which undergoes processing through natural language understanding modules. The Query Dispatcher subsequently triggers concurrent data retrieval processes, encompassing stock data, recent news articles, and additional user-specific inputs. This data is processed in parallel to cleanse and structure the raw information effectively. Multiple branches of analysis—including technical, fundamental, and sentiment analysis—proceed concurrently, followed by the aggregation of custom-generated signals. Ultimately, the synthesized results are visualized and presented to the user through an intuitive interface. This intricate framework underscores the concurrent and parallel nature of the analytic processes, ensuring efficiency, accuracy, and robustness in delivering comprehensive stock insights and recommendations.
 
