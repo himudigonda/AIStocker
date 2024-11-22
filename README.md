@@ -1,6 +1,6 @@
-# 📈 StockerBuddy
+# 📈 ScripBuddy
 
-StockerBuddy is a sophisticated stock analysis and trading assistance platform meticulously designed to provide investors with advanced insights and facilitate informed decision-making. By integrating a variety of analytical tools and state-of-the-art machine learning models, StockerBuddy offers real-time stock analysis, technical indicators, sentiment evaluations, and trading signals.
+ScripBuddy is a sophisticated stock analysis and trading assistance platform meticulously designed to provide investors with advanced insights and facilitate informed decision-making. By integrating a variety of analytical tools and state-of-the-art machine learning models, ScripBuddy offers real-time stock analysis, technical indicators, sentiment evaluations, and trading signals.
 
 ## ✨ Key Features
 1. **Interactive Chat Interface**:
@@ -37,7 +37,7 @@ StockerBuddy is a sophisticated stock analysis and trading assistance platform m
 - **Custom Signal Algorithms**: Implemented to generate automated buy and sell signals by evaluating various technical indicators such as Moving Averages, MACD, and RSI.
 
 ## ⛓️ Analysis Flow Overview
-The following diagram delineates the structural framework of StockerBuddy, highlighting data dependencies, concurrency, data flow, and interrelationships among components:
+The following diagram delineates the structural framework of ScripBuddy, highlighting data dependencies, concurrency, data flow, and interrelationships among components:
 
 ![Analysis Flow](./data/programflow.jpg)
 
@@ -65,4 +65,4 @@ Below are screenshots illustrating the various dashboard tabs, providing a compr
    ![Trading Signals](./data/TS.png)
 
 ## ⚠️ Disclaimer
-StockerBuddy is intended solely for informational and educational purposes and does not constitute financial, investment, or trading advice. The insights, analyses, and recommendations provided are based on machine learning models and historical data, which are inherently subject to inaccuracies and limitations. Investors are advised to conduct their own independent research and consult with a licensed financial advisor before making any investment decisions. StockerBuddy and its developers shall not be held liable for any financial losses or damages incurred as a result of reliance on the information provided by this platform. Trading in financial markets carries inherent risks, and past performance is not indicative of future results.
+ScripBuddy is intended solely for informational and educational purposes and does not constitute financial, investment, or trading advice. The insights, analyses, and recommendations provided are based on machine learning models and historical data, which are inherently subject to inaccuracies and limitations. Investors are advised to conduct their own independent research and consult with a licensed financial advisor before making any investment decisions. ScripBuddy and its developers shall not be held liable for any financial losses or damages incurred as a result of reliance on the information provided by this platform. Trading in financial markets carries inherent risks, and past performance is not indicative of future results.

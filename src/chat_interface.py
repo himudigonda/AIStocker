@@ -15,7 +15,7 @@ class ChatInterface:
             st.session_state.messages = []
 
     def display(self):
-        st.title("📈 StockerBuddy")
+        st.title("📈 ScripBuddy")
 
         # Display chat messages from session state on app rerun
         for message in st.session_state.messages:
@@ -43,7 +43,7 @@ class ChatInterface:
 
     def get_user_input(self):
         """Get input from the user and process it with the LLM handler."""
-        user_input = st.chat_input("Ask StockerBuddy something...")
+        user_input = st.chat_input("Ask ScripBuddy something...")
         if user_input:
             # Add the user's input to the chat
             self.add_message("user", user_input)
