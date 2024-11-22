@@ -1,3 +1,4 @@
+from st_aggrid import AgGrid, GridOptionsBuilder
 import streamlit as st
 from src.signal_generator import generate_signals
 from src.data_retrieval import get_stock_data
@@ -5,6 +6,9 @@ from src.visualization import create_candlestick_chart_with_ma
 from src.sentiment_analysis import fetch_news, analyze_sentiment
 from src.tools.company_info import get_company_info
 from textblob import TextBlob
+import plotly.express as px
+import pandas as pd
+from src.tools.company_info import get_company_info, interpret_company_metrics
 
 def create_dashboard(logger):
     # Ensure the symbol persists across tabs
@@ -12,7 +16,7 @@ def create_dashboard(logger):
         st.session_state["symbol"] = "AAPL"  # Default stock symbol
 
     # Create input once, outside the tabs, to keep it persistent
-    st.text_input("Enter stock symbol (e.g., AAPL):", st.session_state["symbol"], key="symbol_input", on_change=lambda: st.session_state.update({"symbol": st.session_state.symbol_input}))
+    st.text_input("Enter stock symbol (e.g., AAPL, NVDA, GOOGL, TSLA):", st.session_state["symbol"], key="symbol_input", on_change=lambda: st.session_state.update({"symbol": st.session_state.symbol_input}))
 
     tabs = st.tabs([
         "📈 Price Analysis",
@@ -102,14 +106,19 @@ def create_dashboard(logger):
             )
         else:
             st.error("Failed to retrieve data. Please check the stock symbol.")
+
     # Company Info Tab
     with tabs[2]:
         st.subheader("🏢 Company Info")
         symbol = st.session_state.symbol
         company_info = get_company_info(symbol)
+
         if "Error" not in company_info:
-            for key, value in company_info.items():
-                st.write(f"**{key}:** {value}")
+            # Create a DataFrame from company info
+            info_df = pd.DataFrame(list(company_info.items()), columns=["Metric", "Value"])
+
+            # Render an interactive table
+            st.dataframe(info_df, use_container_width=True, height=600)
         else:
             st.warning("Could not fetch company information.")
 

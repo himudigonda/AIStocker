@@ -43,7 +43,7 @@ class ChatInterface:
 
     def get_user_input(self):
         """Get input from the user and process it with the LLM handler."""
-        user_input = st.chat_input("Ask ScripBuddy something...")
+        user_input = st.chat_input("Ask ScripBuddy something in the BuddyChat...")
         if user_input:
             # Add the user's input to the chat
             self.add_message("user", user_input)
